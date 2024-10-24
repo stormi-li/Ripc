@@ -29,14 +29,20 @@ func NewClient(addr string) (*Client, error) {
 	return &client, nil
 }
 
+var namespace = ""
+
+func SetNameSpace(str string) {
+	namespace = str + ":"
+}
+
 // 向所有监听管道的进程发送通知
 func (client Client) Notify(ctx context.Context, channel, msg string) {
-	client.RedisClient.Publish(ctx, channel, msg)
+	client.RedisClient.Publish(ctx, namespace+channel, msg)
 }
 
 // 监听一个消息，返回收到的信息，如果超时返回""
 func (client Client) Wait(ctx context.Context, channel string, timeout time.Duration) string {
-	sub := client.RedisClient.Subscribe(ctx, channel)
+	sub := client.RedisClient.Subscribe(ctx, namespace+channel)
 	msg := sub.Channel()
 	timer := time.NewTicker(timeout)
 	defer timer.Stop()
@@ -60,8 +66,8 @@ func (listener Listener) Close() {
 
 func (client *Client) NewListener(ctx context.Context, channel string) *Listener {
 	listener := Listener{}
-	listener.sub = client.RedisClient.Subscribe(ctx, channel)
-	listener.shutdown = make(chan struct{},1)
+	listener.sub = client.RedisClient.Subscribe(ctx, namespace+channel)
+	listener.shutdown = make(chan struct{}, 1)
 	return &listener
 }
 

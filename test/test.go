@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	client, err := ripc.NewClient("localhost:6379")
+	client, err := ripc.NewClient("118.25.196.166:6379")
+	ripc.SetNameSpace("lili")
 	if err != nil {
 		fmt.Println(err)
 		return
