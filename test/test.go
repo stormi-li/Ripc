@@ -17,8 +17,12 @@ func main() {
 	})
 	client := ripc.NewClient(redisClient)
 	client.SetNamespace("lili")
-	listener := client.NewListener(context.Background(), "c1")
 	go func() {
+		redisClient := redis.NewClient(&redis.Options{
+			Addr: redisAddr,
+		})
+		client1 := ripc.NewClient(redisClient)
+		listener := client1.NewListener(context.Background(), "c1")
 		listener.Listen(func(msg string) {
 			fmt.Println(msg)
 			if msg == "4" {
@@ -38,5 +42,5 @@ func main() {
 		client.Notify("c1", "3")
 		client.Notify("c1", "4")
 	}()
-	select {}
+	time.Sleep(3 * time.Second)
 }
