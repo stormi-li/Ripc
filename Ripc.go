@@ -2,7 +2,6 @@ package ripc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -10,47 +9,37 @@ import (
 
 // Ripc结构体
 type Client struct {
-	RedisClient *redis.Client
-	namespace   string
+	redisClient *redis.Client
+	Namespace   string
+	Context     context.Context
 }
 
 // 创建Ripc客户端
-func NewClient(addr string) (*Client, error) {
-	client := Client{}
-	rdsC := redis.NewClient(&redis.Options{
-		Addr: addr,
-	})
-	client.namespace = ""
-
-	// 测试连接
-	if err := rdsC.Ping(context.Background()).Err(); err != nil {
-		return nil, fmt.Errorf("failed to connect to Redis at %s", addr) // 返回错误
-	}
-
-	client.RedisClient = rdsC
-	return &client, nil
+func NewClient(redisClient *redis.Client) *Client {
+	client := Client{redisClient: redisClient, Namespace: "", Context: context.Background()}
+	return &client
 }
 
-func (c *Client) SetNameSpace(str string) {
-	c.namespace = str + ":"
+func (c *Client) SetNamespace(namespace string) {
+	c.Namespace = namespace + ":"
 }
 
 // 向所有监听管道的进程发送通知
-func (c *Client) Notify(ctx context.Context, channel, msg string) {
-	c.RedisClient.Publish(ctx, c.namespace+channel, msg)
+func (c *Client) Notify(channel, msg string) {
+	c.redisClient.Publish(c.Context, c.Namespace+channel, msg)
 }
 
 // 监听一个消息，返回收到的信息，如果超时返回""
-func (c *Client) Wait(ctx context.Context, channel string, timeout time.Duration) string {
-	sub := c.RedisClient.Subscribe(ctx, c.namespace+channel)
-	msg := sub.Channel()
+func (c *Client) Wait(channel string, timeout time.Duration) string {
+	sub := c.redisClient.Subscribe(c.Context, c.Namespace+channel)
+	msgChan := sub.Channel()
 	timer := time.NewTicker(timeout)
 	defer timer.Stop()
 	defer sub.Close()
 	select {
 	case <-timer.C:
 		return ""
-	case msg := <-msg:
+	case msg := <-msgChan:
 		return msg.Payload
 	}
 }
@@ -66,7 +55,7 @@ func (listener Listener) Close() {
 
 func (c *Client) NewListener(ctx context.Context, channel string) *Listener {
 	listener := Listener{}
-	listener.sub = c.RedisClient.Subscribe(ctx, c.namespace+channel)
+	listener.sub = c.redisClient.Subscribe(ctx, c.Namespace+channel)
 	listener.shutdown = make(chan struct{}, 1)
 	return &listener
 }
