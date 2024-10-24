@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -22,7 +21,7 @@ func main() {
 			Addr: redisAddr,
 		})
 		client1 := ripc.NewClient(redisClient)
-		listener := client1.NewListener(context.Background(), "c1")
+		listener := client1.NewListener("c1")
 		listener.Listen(func(msg string) {
 			fmt.Println(msg)
 			if msg == "4" {
