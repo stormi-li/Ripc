@@ -48,20 +48,24 @@ func (c *Client) Wait(channel string, timeout time.Duration) string {
 	}
 }
 
+// 监听器结构体
 type Listener struct {
 	shutdown chan struct{}
 	sub      *redis.PubSub
 }
 
+// 关闭监听器
 func (listener Listener) Close() {
 	listener.shutdown <- struct{}{}
 }
 
+// 创建一个监听器
 func (c *Client) NewListener(channel string) *Listener {
-	listener := Listener{}
-	//使用redis的Subscribe功能订阅管道--------------------------redis代码
-	listener.sub = c.redisClient.Subscribe(c.Context, c.Namespace+channel)
-	listener.shutdown = make(chan struct{}, 1)
+	listener := Listener{
+		//使用redis的Subscribe功能订阅管道--------------------------redis代码
+		sub:      c.redisClient.Subscribe(c.Context, c.Namespace+channel),
+		shutdown: make(chan struct{}, 1),
+	}
 	return &listener
 }
 
