@@ -11,6 +11,7 @@ import (
 // Ripc结构体
 type Client struct {
 	RedisClient *redis.Client
+	namespace   string
 }
 
 // 创建Ripc客户端
@@ -19,6 +20,7 @@ func NewClient(addr string) (*Client, error) {
 	rdsC := redis.NewClient(&redis.Options{
 		Addr: addr,
 	})
+	client.namespace = ""
 
 	// 测试连接
 	if err := rdsC.Ping(context.Background()).Err(); err != nil {
@@ -29,20 +31,18 @@ func NewClient(addr string) (*Client, error) {
 	return &client, nil
 }
 
-var namespace = ""
-
-func SetNameSpace(str string) {
-	namespace = str + ":"
+func (c *Client) SetNameSpace(str string) {
+	c.namespace = str + ":"
 }
 
 // 向所有监听管道的进程发送通知
-func (client Client) Notify(ctx context.Context, channel, msg string) {
-	client.RedisClient.Publish(ctx, namespace+channel, msg)
+func (c *Client) Notify(ctx context.Context, channel, msg string) {
+	c.RedisClient.Publish(ctx, c.namespace+channel, msg)
 }
 
 // 监听一个消息，返回收到的信息，如果超时返回""
-func (client Client) Wait(ctx context.Context, channel string, timeout time.Duration) string {
-	sub := client.RedisClient.Subscribe(ctx, namespace+channel)
+func (c *Client) Wait(ctx context.Context, channel string, timeout time.Duration) string {
+	sub := c.RedisClient.Subscribe(ctx, c.namespace+channel)
 	msg := sub.Channel()
 	timer := time.NewTicker(timeout)
 	defer timer.Stop()
@@ -64,9 +64,9 @@ func (listener Listener) Close() {
 	listener.shutdown <- struct{}{}
 }
 
-func (client *Client) NewListener(ctx context.Context, channel string) *Listener {
+func (c *Client) NewListener(ctx context.Context, channel string) *Listener {
 	listener := Listener{}
-	listener.sub = client.RedisClient.Subscribe(ctx, namespace+channel)
+	listener.sub = c.RedisClient.Subscribe(ctx, c.namespace+channel)
 	listener.shutdown = make(chan struct{}, 1)
 	return &listener
 }
