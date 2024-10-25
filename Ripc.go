@@ -16,9 +16,11 @@ type Client struct {
 
 // 创建Ripc客户端
 func NewClient(redisClient *redis.Client, namespace string) *Client {
-	client := Client{redisClient: redisClient, namespace: namespace + ":", ctx: context.Background()}
-
-	return &client
+	return &Client{
+		redisClient: redisClient,
+		namespace:   namespace + ":",
+		ctx:         context.Background(),
+	}
 }
 
 // 向所有监听频道的进程发送通知
