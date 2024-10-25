@@ -8,19 +8,20 @@ import (
 	ripc "github.com/stormi-li/Ripc"
 )
 
-var redisAddr = "118.25.196.166:6379"
+var redisAddr = "118.25.196.166:3934"
 
 func main() {
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
+		Addr:     redisAddr,
+		Password: "12982397StrongPassw0rd",
 	})
-	client := ripc.NewClient(redisClient)
-	client.SetNamespace("lili")
+	client := ripc.NewClient(redisClient, "my-namespace")
 	go func() {
 		redisClient := redis.NewClient(&redis.Options{
 			Addr: redisAddr,
+			Password: "12982397StrongPassw0rd",
 		})
-		client1 := ripc.NewClient(redisClient)
+		client1 := ripc.NewClient(redisClient, "my-namespace")
 		listener := client1.NewListener("c1")
 		listener.Listen(func(msg string) {
 			fmt.Println(msg)
@@ -29,7 +30,7 @@ func main() {
 			}
 			time.Sleep(500 * time.Millisecond)
 		})
-		fmt.Println("hhhh")
+		fmt.Println("listener stopped")
 	}()
 	go func() {
 		fmt.Println(client.Wait("c1", 200*time.Millisecond))

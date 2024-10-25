@@ -13,7 +13,7 @@ func main() {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: redisAddr,
 	})
-	client := ripc.NewClient(redisClient)
+	client := ripc.NewClient(redisClient, "my-namespece")
 	listener := client.NewListener("c1") //参数为频道名称
 	listener.Listen(func(msg string) {   //启动监听器
 		fmt.Println(msg)
