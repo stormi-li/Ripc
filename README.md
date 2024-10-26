@@ -1,7 +1,7 @@
 # RIPC Guides
 
 
-Simple and efficient cross-process communication library
+Simple and efficient cross-process communication library.
 
 # Overview
 
