@@ -51,13 +51,12 @@ func main() {
 }
 ```
 
-# Interface-ripc
+# Interface - ripc
 
 ## NewClient
 
 ### Create ripc client
 ```go
-
 package main
 
 import (
@@ -82,7 +81,7 @@ func main() {
 
 The first parameter is a redis client of successful connection, the second parameter is a unique namespace.
 
-# Interface-ripc.Client
+# Interface - ripc.Client
 
 ## Notify
 
@@ -110,7 +109,7 @@ listener := client.NewListener("ripc-channel")
 The first parameter is a unique channel name.
 The return value is a listener for a specific channel.
 
-# Interface-ripc.Listener
+# Interface - ripc.Listener
 
 ## Listen
 
