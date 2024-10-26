@@ -15,7 +15,7 @@ func main() {
 		Addr:     redisAddr,
 		Password: password,
 	})
-	client := ripc.NewClient(redisClient, "my-namespace")
+	client := ripc.NewClient(redisClient, "ripc-namespace")
 	res := client.Wait("my-channel", 0)
 	fmt.Println(res)
 }

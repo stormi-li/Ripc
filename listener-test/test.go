@@ -16,8 +16,8 @@ func main() {
 		Addr:     redisAddr,
 		Password: password,
 	})
-	client1 := ripc.NewClient(redisClient, "my-namespace")
-	listener := client1.NewListener("my-channel")
+	client1 := ripc.NewClient(redisClient, "ripc-namespace")
+	listener := client1.NewListener("ripc-channel")
 	listener.Listen(func(msg string) {
 		fmt.Println(msg)
 		if msg == "shutdown" {

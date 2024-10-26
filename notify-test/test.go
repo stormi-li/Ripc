@@ -13,9 +13,9 @@ func main() {
 		Addr:     redisAddr,
 		Password: password,
 	})
-	client := ripc.NewClient(redisClient, "my-namespace")
-	client.Notify("my-channel", "1")
-	client.Notify("my-channel", "2")
-	client.Notify("my-channel", "3")
-	client.Notify("my-channel", "shutdown")
+	client := ripc.NewClient(redisClient, "ripc-namespace")
+	client.Notify("ripc-channel", "1")
+	client.Notify("ripc-channel", "2")
+	client.Notify("ripc-channel", "3")
+	client.Notify("ripc-channel", "shutdown")
 }
