@@ -18,7 +18,7 @@ type Client struct {
 func NewClient(redisClient *redis.Client, namespace string) *Client {
 	return &Client{
 		redisClient: redisClient,
-		namespace:   namespace + ":",
+		namespace:   namespace + const_splitChar,
 		ctx:         context.Background(),
 	}
 }
