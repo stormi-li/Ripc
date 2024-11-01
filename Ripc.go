@@ -53,12 +53,6 @@ func (c *Client) Wait(channel string, timeout time.Duration) string {
 	}
 }
 
-// 创建一个监听器
 func (c *Client) NewListener(channel string) *Listener {
-	listener := Listener{
-		//使用redis的Subscribe功能订阅管道--------------------------redis代码
-		sub:      c.redisClient.Subscribe(c.ctx, c.namespace+channel),
-		shutdown: make(chan struct{}, 1),
-	}
-	return &listener
+	return newListener(c.redisClient.Subscribe(c.ctx, c.namespace+channel))
 }
